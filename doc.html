@@ -1,0 +1,729 @@
+<head>
+<link rel="stylesheet" href="docstyle.css" />
+<title>C++下Roguelike游戏的Demo</title>
+</head>
+<body>
+<h1 id="c下roguelike游戏的demo">C++下Roguelike游戏的Demo</h1>
+<h2 id="准备">准备</h2>
+<h3 id="前言">前言</h3>
+<p>笔者学习了C++后发现使用Python制作游戏虽然简单，但是会牺牲性能。所以笔者决定使用C++来实现一款Roguelike小游戏的Demo。</p>
+<h3 id="基本原理">基本原理</h3>
+<p>存储地图使用的是二维数组，获取键盘使用的是<code>getch()</code>函数（包括在<code>conio.h</code>中）</p>
+<h3 id="工具">工具</h3>
+<ul>
+<li>C++编译器 一个</li>
+<li>文本编辑器 一个
+或</li>
+<li>支持C++的IDE 一个（推荐Dev-C++，笔者正在使用的IDE）<h3 id="注意事项">注意事项</h3>
+此Demo在<strong>命令行</strong>下运行，而非<strong>图形界面</strong><h3 id="基础知识">基础知识</h3>
+暂无<h1 id="代码">代码</h1>
+<h2 id="简介">简介</h2>
+这是一款<a href="https://github.com/Neat-Isaac/MovingXeniaLegend.git">Roguelike游戏</a>
+，主人公为Xenia（X），通过收集Coin（C），击杀Monster（M），一路通关。<h2 id="让xenia动起来！">让Xenia动起来！</h2>
+新建一个<code>cpp</code>文件，取一个你喜欢的名字，下文中为<code>moving.cpp</code>。其实这个文件名并不重要，但在<code>Dev-C++</code>中，编译器会自动将编译得到的<code>exe</code>文件重命名为源代码文件的名字。当然，你也可以在编译之后自己修改<code>exe</code>文件的名字。</li>
+</ul>
+<p>屏幕为80*25的大小，可使用<code>int</code>型变量<code>x</code>和<code>y</code>存储坐标。</p>
+<p>需要建立一个二维字符数组。</p>
+<p>文中数组定义为：</p>
+<pre><code class="language-C++">char map[80][25];   //需要将此数组设置为空
+</code></pre>
+<h3 id="核心代码">核心代码</h3>
+<p>这段代码是需要放入死循环中的。</p>
+<pre><code class="language-C++">map[y][x] = &#39; &#39;;
+switch(getch())
+{
+    case &#39;w&#39;:
+        if(y &gt; 0)
+            y--;
+        break;
+    case &#39;s&#39;:
+        if(y &lt; 24)
+            y++;
+        break;
+    case &#39;a&#39;:
+        if(x &gt; 0)
+            x--;
+        break;
+    case &#39;d&#39;:
+        if(x &lt; 78)
+            x++;
+        break;
+}
+map[y][x] = &#39;X&#39;;
+</code></pre>
+<p><code>getch()</code>函数不必多说，上文也提到过，用于获取按键。</p>
+<p>移动为<kbd>W</kbd><kbd>S</kbd><kbd>A</kbd><kbd>D</kbd>键。接下来是输出：</p>
+<pre><code class="language-C++">system(&quot;cls&quot;);
+//插入代码处，下文要用
+for(int i=0;i&lt;25;i++)
+{
+    for(int j=0;j&lt;80;j++)
+        cout&lt;&lt;map[i][j];
+    cout&lt;&lt;endl;
+}
+</code></pre>
+<p><del>不会真的有人看不懂这一段吧</del></p>
+<p>在此程序上加以补充，就能得到一个简单的demo，程序得以运行。可以看到，Xenia动了起来。</p>
+<h2 id="动起来了，然后呢？">动起来了，然后呢？</h2>
+<p>显然，我们的游戏不可能只是让Xenia在这个空荡荡的屏幕上动起来这么简单的。所以，我们需要添加地图。</p>
+<p>新建一个文本文档，取一个你喜欢的名字（下文中为<code>map1.txt</code>），并在里面填充一些空格、你想用于表示障碍的字符和字母C，须为80*25的格式。</p>
+<p>现在，笔者认为<code>string</code>类型更加适合存储地图。于是将上文的二维字符数组生成语句修改一下：</p>
+<pre><code class="language-C++">string map[25],imap[25];
+</code></pre>
+<p>为什么会多出来一个<code>imap</code>数组呢？</p>
+<p>请将“核心代码”中的<code>map[y][x] = &#39; &#39;;</code>替换为<code>map[y][x] = imax[y][x];</code>。</p>
+<p>相信聪明的读者朋友已经知道了，<code>imax</code>数组是用于存储原地图的。</p>
+<h3 id="读取文件">读取文件</h3>
+<pre><code class="language-C++">ifstream fin(&quot;map1.txt&quot;);			//需要导入fstream
+for(int i=0;i&lt;25;i++)
+{
+    getline(fin,map[i]);
+    imap[i] = map[i];
+}
+</code></pre>
+<p>刚才在创建地图文件的时候输入了一些字母<code>C</code>,它们是干什么用的呢？</p>
+<h3 id="吃金币">吃金币</h3>
+<p>新建一个<code>int</code>型变量<code>coin</code>用于存储金币，并在输出地图处代码中的“<strong>插入代码处</strong>”加上这样一句：</p>
+<pre><code class="language-C++">cout&lt;&lt;&quot;coin:&quot;&lt;&lt;coin&lt;&lt;endl;
+</code></pre>
+<p>如何判断Xenia是否碰到金币了呢？</p>
+<pre><code class="language-C++">if(map[y][x] != &#39; &#39;)
+{
+    if(map[y][x] == &#39;C&#39;)
+    {
+        coin++;
+        imap[y][x] = &#39; &#39;;
+    }
+}
+</code></pre>
+<h3 id="障碍判断">障碍判断</h3>
+<p>在创建文件时，我们输入的非空格字符显然不全是<code>C</code>。因此，我们需要判断是否碰到障碍。
+在核心代码前加入如下代码：</p>
+<pre><code class="language-C++">int tempx = x,tempy = y;
+</code></pre>
+<p>这两个变量用于存储移动前的位置。</p>
+<p>现在，在上文中判断吃金币的代码处加入<strong>判断Xenia现在所处的位置上是否为既不是空格也不是<code>C</code>的字符</strong>的代码。</p>
+<p>什么，你不知道该如何实现？好吧，我应该考虑到这一点的。</p>
+<pre><code class="language-C++">if(map[y][x] != &#39; &#39;)
+{
+    if(map[y][x] == &#39;C&#39;)
+    {
+        coin++;
+        imap[y][x] = &#39; &#39;;
+    }
+    else{
+        x = tempx;
+        y = tempy;
+    }
+}
+</code></pre>
+<p>至此，我们的游戏有了一些基本的功能。你可以修改一下地图，使它<strong>暂时</strong>成为一个迷宫游戏。</p>
+<h2 id="失败的诞生">失败的诞生</h2>
+<p>在人生的漫漫长路中，失败是难以避免的。在我们的游戏中也是一样的。因此，我们需要加入生命和怪物系统。</p>
+<p>新建一个<code>int</code>型变量，命名为<code>lives</code>或任何你喜欢的名字，用于存储生命数，并赋值为你想让玩家拥有的初始生命数（显然，它不能为0）。</p>
+<p>仿照输出金币数量的代码，将上文中的<strong>插入代码处</strong>的代码中加入输出<code>lives</code>变量的代码。</p>
+<h3 id="怪物">怪物</h3>
+<p>既然有了生命，那就应当有减少生命的物件。这里为怪物<code>M</code>。</p>
+<p>在地图文件中加入一些字母<code>M</code>。</p>
+<p>接下来，将上文吃金币的代码修改为：</p>
+<pre><code class="language-C++">if(map[y][x] != &#39; &#39;)
+{
+    if(map[y][x] == &#39;C&#39;)
+    {
+        coin++;
+        imap[y][x] = &#39; &#39;;
+    }
+    else{
+        if(map[y][x] == &#39;M&#39;)
+            lives--;
+        x = tempx;
+        y = tempy;
+    }
+}
+</code></pre>
+<h3 id="死亡">死亡</h3>
+<p>在输出地图和清空屏幕之间插入一段判断生命数的代码，输出一些你想输出的字符，来向玩家宣布游戏结束。<strong>别忘了给玩家看到这段消息的时间！</strong></p>
+<p>下面是一个例子：</p>
+<pre><code class="language-C++">if(lives &lt;= 0)
+{
+    cout&lt;&lt;&quot;You Died.&quot;&lt;&lt;endl;
+    system(&quot;pause&quot;);
+    return 0;
+}
+</code></pre>
+<h3 id="回天改命">回天改命</h3>
+<p>我们可以设置一种物品<code>H</code>，使玩家在拾取时增加一点生命。如果读者想增加游戏难度的话，可忽略此节。</p>
+<p>可以在地图文件中加入一些字母<code>H</code>，并在上文吃金币的代码处增加如下代码：</p>
+<pre><code class="language-C++">else if(map[y][x] == &#39;H&#39;)
+{
+    lives++;
+    imap[y][x] = &#39; &#39;;
+}
+</code></pre>
+<p>自此，生命和怪物系统便大功告成了。</p>
+<h2 id="xenia是软柿子吗？">Xenia是软柿子吗？</h2>
+<p>嗯，怪物系统看上去没有什么问题了，但是，如果怪物挡住了Xenia的去路，那她该怎么办呢？作为一款Roguelike游戏的主人公，笔者相信她不会坐以待毙的。所以，我们需要赋予她反击怪物的能力！</p>
+<h3 id="控制">控制</h3>
+<p>将一个按键设置为攻击键，下文中为<kbd>K</kbd>键。</p>
+<p>我们不希望Xenia拥有回旋斩的技能，但我们暂时无法判断Xenia的朝向，所以我们设定她的攻击范围为上、下、左、右。</p>
+<p>一种实现方法如下（在移动部分添加此段代码）：</p>
+<pre><code class="language-C++">case &#39;k&#39;:
+    for(int i=y-1;i&lt;=y+1;i++)
+    {
+        for(int j=x-1;j&lt;=x+1;j++)
+        {
+            if(abs(y-i) == abs(x-j))
+                continue;
+            if(map[i][j] == &#39;M&#39;)
+                map[i][j] = imap[i][j] = &#39; &#39;;
+        }
+    }
+    break;
+</code></pre>
+<h2 id="总该有个结束吧？">总该有个结束吧？</h2>
+<p>现在，整个游戏已经基本实现完成。但是，如何使玩家进入下一关呢？
+我们可以添加一种物品<code>O</code>，当玩家碰到时进入下一关。</p>
+<p>在地图文件中加入<strong>一个</strong>字母<code>O</code>，并在吃金币处加入如下代码：</p>
+<pre><code class="language-C++">else if(map[y][x] == &#39;O&#39;)
+{
+    system(&quot;cls&quot;);
+    cout&lt;&lt;&quot;You Win.&quot;&lt;&lt;endl;
+    system(&quot;pause&quot;);
+    return 0;
+}
+</code></pre>
+<p>这段代码可以使玩家在碰到<code>O</code>时结束游戏，但想要进入下一关需要读者朋友开动脑筋想想办法。</p>
+<h1 id="地图生成">地图生成</h1>
+<p>如果你读完了上文并照做的话，你一定会发现，手动制作地图十分麻烦，而且地图并不是随机的。实际上，你也可以通过每次开始游戏前都设置地图来实现随机，但显然这不是长久之计。因此，我们需要设计一个程序来生成地图。</p>
+<p>新建一个<code>cpp</code>文件，取一个你喜欢的名字，下文中为<code>setmap.cpp</code>。</p>
+<h2 id="准备工作">准备工作</h2>
+<p>新建一个<code>string</code>类型的数组，下文中命名为<code>map</code>。</p>
+<p>新建一个随机数种子（即<code>srand(time(NULL));</code>）。</p>
+<p>使用一个<code>for</code>循环将<code>map</code>数组填充80*25的表示墙的符号。</p>
+<p>新建一个<code>int</code>型二维数组<code>room</code>用于存储房间的四个角的坐标。</p>
+<h2 id="房间">房间</h2>
+<h3 id="设置四角坐标">设置四角坐标</h3>
+<p>最好将第0间房间的四角坐标提前设置好，因为Xenia将在这里出生。</p>
+<p>接下来，生成四个房间的四角坐标。</p>
+<pre><code class="language-C++">int destance = 4;
+for(int i=1;i&lt;5;i++)
+{
+    bool flag = true;
+    int count = 0;
+    while(flag)
+    {
+        room[i][0] = rand() % 63 + 1;
+        room[i][1] = rand() % 19 + 1;
+        room[i][2] = room[i][0] + 15;
+        room[i][3] = room[i][1] + 4;
+        for(int j=0;j&lt;i;j++)
+        {
+            if((room[i][2] &lt; room[j][0] - distance || room[i][0] &gt; room[j][2] + distance) || (room[i][3] &lt; room[j][1] - distance || room[i][1] &gt; room[j][3] + distance))
+                flag = false;
+            else
+            {
+                flag = true;
+                break;
+            }
+        }
+        count++;
+    }
+}
+</code></pre>
+<p><code>distance</code>变量用于存储房间的最小间距。</p>
+<h3 id="填充">填充</h3>
+<p>此处将房间内部填充为空格，这样Xenia可以在其中行动。</p>
+<pre><code class="language-C++">for(int i=0;i&lt;5;i++)
+{
+    for(int j=room[i][0];j&lt;=room[i][2];j++)
+    {
+        for(int k=room[i][1];k&lt;=room[i][3];k++)
+            map[k][j] = &#39; &#39;;
+    }
+}
+</code></pre>
+<h2 id="通道">通道</h2>
+<p>有了房间，自然需要有通道来连接它们。</p>
+<h3 id="设置通道方向">设置通道方向</h3>
+<p>读者朋友可能有些不理解为什么这个功能需要单独放到一节里，但笔者只能这么做。</p>
+<pre><code class="language-C++">int channel[5];
+for(int i=0;i&lt;5;i++)
+    channel[i] = -1;
+int point = 0;
+while(true)
+{
+    int see = 1;
+    bool flag = true;
+    while(flag)
+    {
+        channel[point] = rand() % 5;
+        if(point == channel[point])
+            continue;
+        if(point != channel[point])
+            flag = false;
+        if(channel[channel[point]] == -1)
+            flag = false;
+        else
+        {
+            bool b = true;
+            for(int i=0;i&lt;5;i++)
+            {
+                if(channel[i] == -1)
+                {
+                    b = false;
+                    break;
+                }
+            }
+            if(b)
+            {
+                channel[point] = 0;
+                see = 2;
+                break;
+            }
+            else
+            {
+                see = 0;
+                continue;
+            }
+        }
+    }
+    if(see == 1)
+        point = channel[point];
+    if(see == 2)
+        break;
+    see = 1;
+}
+</code></pre>
+<p>不要惊讶于这段代码的冗长，这只是为了避免通道指向相同的房间。</p>
+<h3 id="填充通道">填充通道</h3>
+<p>这段代码甚至比设置通道方向的代码还要少！</p>
+<pre><code class="language-C++">for(int i=0;i&lt;5;i++)
+{
+    int a = channel[i];
+    if(a == 0)
+        continue;
+    if(room[i][0] &lt;= room[a][0])
+    {
+        for(int j=room[i][0];j&lt;=room[a][0]+5;j++)
+            map[room[i][1] + 2][j] = &#39; &#39;;
+    }
+    else
+    {
+        for(int j=room[i][0];j&gt;=room[a][0]+5;j--)
+            map[room[i][1] + 2][j] = &#39; &#39;;
+    }
+    if(room[i][1] &lt;= room[a][1])
+    {
+        for(int j=room[i][1]+2;j&lt;=room[a][1];j++)
+            map[j][room[a][0] + 5] = &#39; &#39;;
+    }
+    else
+    {
+        for(int j=room[i][1]+2;j&gt;=room[a][1];j--)
+            map[j][room[a][0] + 5] = &#39; &#39;;
+    }
+}
+</code></pre>
+<p>填充的方式有些单一和古怪，不过不必在意。</p>
+<h2 id="物品">物品</h2>
+<p>我们需要在地图中填充物品。</p>
+<h3 id="可拾取物品和掉落物">可拾取物品和掉落物</h3>
+<pre><code class="language-C++">for(int i=0;i&lt;25;i++)
+{
+    for(int j=0;j&lt;80;j++)
+    {
+        int temp = rand() % 50;
+        if(map[i][j] == &#39; &#39;)
+        {
+            if(temp == 1 || temp == 2)
+                map[i][j] = &#39;C&#39;;
+            else if(temp == 3)
+                map[i][j] = &#39;H&#39;;
+            else if(temp == 4 || temp == 5)
+                map[i][j] = &#39;M&#39;;
+        }
+    }
+}
+</code></pre>
+<h3 id="出口">出口</h3>
+<pre><code class="language-C++">bool f = true;
+int x1,y1,x2,y2;
+for(int i=0;i&lt;5;i++)
+{
+    if(channel[i] == 0)
+    {
+        x1 = room[i][0];
+        y1 = room[i][1];
+        x2 = room[i][2];
+        y2 = room[i][3];
+    }
+}
+for(int i=x1;i&lt;=x2;i++)
+{
+    if(f)
+    {
+        for(int j=y1;j&lt;=y2;j++)
+        {
+            int temp = rand() % 10;
+            if(temp == 0)
+            {
+                map[j][i] = &#39;O&#39;;
+                f = false;
+                break;
+                } 
+        }
+    }
+    else
+        break;
+}
+</code></pre>
+<h3 id="初始位置">初始位置</h3>
+<p>我们需要将玩家初始位置设置为空。毕竟，谁也不想出生在怪物头上，Xenia也不例外。</p>
+<pre><code class="language-C++">map[12][40] = &#39; &#39;;
+</code></pre>
+<p>最后，将数组写入文件，大功告成！</p>
+<h1 id="全部代码">全部代码</h1>
+<h2 id="启动器">启动器</h2>
+<p>实际上，这没有必要。不过这会使你的游戏看起来更专业。</p>
+<p><code>launch.cpp</code>:</p>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+#include &lt;conio.h&gt;
+using namespace std;
+int main()
+{
+    cout&lt;&lt;&quot;=========Welcome to MovingXenia Legend=========&quot;&lt;&lt;endl;
+    cout&lt;&lt;&quot;Press any key to start the game.&quot;&lt;&lt;endl;
+    getch();
+    system(&quot;@Moving&quot;);
+    return 0;
+}
+</code></pre>
+<h2 id="游戏主体">游戏主体</h2>
+<p><code>moving.cpp</code>:</p>
+<pre><code class="language-C++">#include &lt;iostream&gt;						//libraries
+#include &lt;cstdlib&gt;						//if you understand that,you can understand that
+#include &lt;conio.h&gt;						//get the keyboard value
+#include &lt;fstream&gt;						//read the map file
+#include &lt;cmath&gt;						//abs() function
+using namespace std;
+int main()
+{
+    string map[25],imap[25];			//map:game map;imap:background map
+    int coin = 0,level = 1,lives = 5;				//if you do not understand that,you can not understand that
+    int x,y;							//init the position
+    while(true)
+    {
+        bool bool1 = false;
+        x = 40;y = 12;
+        system(&quot;setmap&quot;);
+        ifstream fin(&quot;map1.txt&quot;);			//file pointer
+        for(int i=0;i&lt;25;i++)				//this loop read the map file
+        {
+            getline(fin,map[i]);			//put a line in the array:map
+            imap[i] = map[i];				//put a line in the array:imap
+            cout&lt;&lt;map[i]&lt;&lt;endl;				//help programmers to check the map
+        }
+        while(true)
+        {
+            map[y][x] = imap[y][x];			//clear the place before moving
+            int tempx = x,tempy = y;		//member the place
+            switch(getch())					//control the player
+            {								//move
+                case &#39;w&#39;:
+                    if(y &gt; 0)
+                        y--;
+                    break;
+                case &#39;s&#39;:
+                    if(y &lt; 24)
+                        y++;
+                    break;
+                case &#39;a&#39;:
+                    if(x &gt; 0)
+                        x--;
+                    break;
+                case &#39;d&#39;:
+                    if(x &lt; 78)
+                        x++;
+                    break;
+                case &#39;k&#39;:					//kill the monster
+                    for(int i=y-1;i&lt;=y+1;i++)
+                    {
+                        for(int j=x-1;j&lt;=x+1;j++)
+                        {
+                            if(abs(y-i) == abs(x-j))
+                                continue;
+                            if(map[i][j] == &#39;M&#39;)
+                            {
+                                map[i][j] = imap[i][j] = &#39; &#39;;
+                            }
+                        }
+                    }
+                    break;
+                case &#39;h&#39;:					//help menu
+                    system(&quot;cls&quot;);
+                    cout&lt;&lt;&quot;===============Help Menu===============&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;Control:&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;Move:W,A,S,D;&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;Kill Monsters:K;&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;Symbol:&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;X:Xenia(Yourself);&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;M:Monster(You need to kill them);&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;C:Coin(Collect them to increase your coins);&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;H:Heart(Collect them to ncrease your lives);&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;O:Out(The end of the level);&quot;&lt;&lt;endl;
+                    cout&lt;&lt;&quot;=======================================&quot;&lt;&lt;endl&lt;&lt;endl&lt;&lt;endl;
+                    system(&quot;pause&quot;);
+                    break;
+            }
+            if(map[y][x] != &#39; &#39;)
+            {
+                if(map[y][x] == &#39;C&#39;)		//collect coins
+                {
+                    coin++;
+                    imap[y][x] = &#39; &#39;;
+                }
+                else if(map[y][x] == &#39;H&#39;)	//collect hearts
+                {
+                    lives++;
+                    imap[y][x] = &#39; &#39;;
+                }
+                else if(map[y][x] == &#39;O&#39;)	//win the game
+                {
+                    system(&quot;cls&quot;);
+                    cout&lt;&lt;&quot;You Win.&quot;&lt;&lt;endl;
+                    system(&quot;pause&quot;);
+                    bool1 = true;
+                    break;
+                }
+                                            //open the door(not developed)
+                else{
+                    if(map[y][x] == &#39;M&#39;)	//meet the monster
+                        lives--;
+                    x = tempx;				//(go back to the place we met)
+                    y = tempy;
+                }
+            }
+            map[y][x] = &#39;X&#39;;				//change the game map after moving
+            
+            system(&quot;cls&quot;);					//if you can not understand that,you will never understand that
+            if(lives &lt;= 0)					//die
+            {
+                cout&lt;&lt;&quot;You Died.&quot;&lt;&lt;endl;
+                system(&quot;pause&quot;);
+                return 0;
+            }
+                                            //print status
+            cout&lt;&lt;&quot;x:&quot;&lt;&lt;x&lt;&lt;&quot; y:&quot;&lt;&lt;y&lt;&lt;&quot; coin:&quot;&lt;&lt;coin&lt;&lt;&quot; lives:&quot;&lt;&lt;lives&lt;&lt;&quot; level:&quot;&lt;&lt;level&lt;&lt;endl;
+            for(int i=0;i&lt;25;i++)			//print the map
+                cout&lt;&lt;map[i]&lt;&lt;endl;
+        }
+        if(bool1)
+        {
+            bool1 = 0;
+            level++;
+            continue;
+        }
+    }
+    return 0;							//I do not know why I put it here
+}
+</code></pre>
+<h2 id="地图生成器">地图生成器</h2>
+<p><code>setmap.cpp</code>:</p>
+<pre><code class="language-C++">#include &lt;fstream&gt;
+#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+#include &lt;ctime&gt;
+using namespace std;
+int main()
+{
+    string map[25];
+    ofstream fout(&quot;map1.txt&quot;);
+    srand(time(NULL));
+    for(int i=0;i&lt;25;i++)
+        map[i] = &quot;********************************************************************************&quot;;
+    //rooms
+    int room[5][4];
+    int distance = 4;
+    room[0][0] = 32;
+    room[0][1] = 10;
+    room[0][2] = 47;
+    room[0][3] = 14;
+    for(int i=1;i&lt;5;i++)
+    {
+        bool flag = true;
+        int count = 0;									//true:wrong;false:correct
+        while(flag)
+        {
+            room[i][0] = rand() % 63 + 1;				//x1
+            room[i][1] = rand() % 19 + 1;					//y1
+            room[i][2] = room[i][0] + 15;				//x2
+            room[i][3] = room[i][1] + 4;				//y2
+            for(int j=0;j&lt;i;j++)						//j &lt; i!
+            {
+                if((room[i][2] &lt; room[j][0] - distance || room[i][0] &gt; room[j][2] + distance) || (room[i][3] &lt; room[j][1] - distance || room[i][1] &gt; room[j][3] + distance))
+                    flag = false;
+                else
+                {
+                    flag = true;
+                    break;								//this sentence is very important!
+                }
+            }
+            count++;
+        }
+    }
+    for(int i=0;i&lt;5;i++)
+    {
+        for(int j=room[i][0];j&lt;=room[i][2];j++)
+        {
+            for(int k=room[i][1];k&lt;=room[i][3];k++)
+                map[k][j] = &#39; &#39;;
+        }
+    }
+    
+    //channels
+    //1.define
+    int channel[5];
+    for(int i=0;i&lt;5;i++)
+        channel[i] = -1;
+    int point = 0;
+    while(true)
+    {
+        int see = 1;
+        bool flag = true;
+        while(flag)
+        {
+            channel[point] = rand() % 5;
+            if(point == channel[point])
+                continue;
+            if(point != channel[point])
+                flag = false;
+            if(channel[channel[point]] == -1)
+                flag = false;
+            else
+            {
+                bool b = true;
+                for(int i=0;i&lt;5;i++)
+                {
+                    if(channel[i] == -1)
+                    {
+                        b = false;
+                        break;
+                    }
+                }
+                if(b)
+                {
+                    channel[point] = 0;
+                    see = 2;
+                    break;
+                }
+                else
+                {
+                    see = 0;
+                    continue;
+                }
+            }
+        }
+        if(see == 1)
+            point = channel[point];
+        if(see == 2)
+            break;
+        see = 1;
+    }
+    
+    //2.change
+    for(int i=0;i&lt;5;i++)
+    //cout&lt;&lt;i&lt;&lt;&#39; &#39;&lt;&lt;channel[i]&lt;&lt;endl;
+    for(int i=0;i&lt;5;i++)
+    {
+        //cout&lt;&lt;i&lt;&lt;endl;
+        int a = channel[i];
+        if(a == 0)
+            continue;
+        //x
+        if(room[i][0] &lt;= room[a][0])
+        {
+            for(int j=room[i][0];j&lt;=room[a][0]+5;j++)
+                map[room[i][1] + 2][j] = &#39; &#39;;
+        }
+        else
+        {
+            for(int j=room[i][0];j&gt;=room[a][0]+5;j--)
+                map[room[i][1] + 2][j] = &#39; &#39;;
+        }
+        //y
+        if(room[i][1] &lt;= room[a][1])
+        {
+            for(int j=room[i][1]+2;j&lt;=room[a][1];j++)
+                map[j][room[a][0] + 5] = &#39; &#39;;
+        }
+        else
+        {
+            for(int j=room[i][1]+2;j&gt;=room[a][1];j--)
+                map[j][room[a][0] + 5] = &#39; &#39;;
+        }
+    }
+    
+    //prop
+    for(int i=0;i&lt;25;i++)
+    {
+        for(int j=0;j&lt;80;j++)
+        {
+            int temp = rand() % 50;
+            if(map[i][j] == &#39; &#39;)
+            {
+                if(temp == 1 || temp == 2)
+                    map[i][j] = &#39;C&#39;;
+                else if(temp == 3)
+                    map[i][j] = &#39;H&#39;;
+                else if(temp == 4 || temp == 5)
+                    map[i][j] = &#39;M&#39;;
+            }
+        }
+    }
+    
+    //exit
+    bool f = true;
+    int x1,y1,x2,y2;
+    for(int i=0;i&lt;5;i++)
+    {
+        if(channel[i] == 0)
+        {
+            x1 = room[i][0];
+            y1 = room[i][1];
+            x2 = room[i][2];
+            y2 = room[i][3];
+        }
+    }
+    for(int i=x1;i&lt;=x2;i++)
+    {
+        if(f)
+        {
+            for(int j=y1;j&lt;=y2;j++)
+            {
+                int temp = rand() % 10;
+                if(temp == 0)
+                {
+                    map[j][i] = &#39;O&#39;;
+                    f = false;
+                    break;
+                 } 
+            }
+        }
+        else
+            break;
+    }
+    map[12][40] = &#39; &#39;;
+    
+    //write map
+    for(int i=0;i&lt;25;i++)
+        fout&lt;&lt;map[i]&lt;&lt;endl;
+    return 0;
+}
+</code></pre>
+<h1 id="结束语">结束语</h1>
+<p>至此，整个Demo的开发就结束了。</p>
+<blockquote>
+<p>Python真的不适合用来开发游戏，还是C++更好用一点。这款游戏虽然简陋了一些，但是这款游戏的玩法比贪吃蛇丰富多了，不是吗？</p>
+</blockquote>
+</body>
